@@ -1,0 +1,213 @@
+<html>
+  <head>
+    <title>Where-stagram</title>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+    <meta charset="utf-8">
+    <script src="http://code.jquery.com/jquery-latest.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?v=3.exp"></script>
+    <script src="http://cooper-union-maps-proxy.herokuapp.com/js/draw.js"></script>
+    <script>
+      $(document).ready(function(){
+        var lat = 40.7293;    //default is foundation building.
+        var lng = -73.9906;
+        var full = false;
+        var step = .005;
+
+        redraw(lat,lng);
+
+        function redraw(lat, lng) {
+          var mapOptions = {
+            zoom: 16, //very close
+            center: new google.maps.LatLng(lat, lng),
+            // mapTypeId: google.maps.MapTypeId.SATELLITE,
+            zoomControl: false,
+            mapTypeControl: false,
+            scaleControl: false,
+            streetViewControl: false,
+            rotateControl: false,
+            fullscreenControl: false
+          };
+
+          var positions = [
+            {
+              'title': "This is you! Use the controls on the right to move yourself around and take a virtual tour!",
+              'map': new google.maps.LatLng(lat, lng),
+              'link': 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'
+            }
+          ];
+
+          draw('map', mapOptions, positions); 
+        }
+
+
+        function getPics(lat, lng){
+          $("#pics")
+          var url = "http://cooper-union-instagram-proxy.herokuapp.com/search/media?lat="+lat+"&lng="+lng;
+          $.getJSON(url, function(response){
+           console.log(response);
+            if (full==true){
+              for(var i=0; i<response.length; i++) {
+                $("#"+i).remove();
+              }
+            }
+            else{
+              $("p").remove();
+              $("h2").removeClass("hid");
+              $("h2").addClass("vis");
+            }
+            for(var i=0; i<response.length; i++) {
+              $("#pics").append("<img id='"+i+"' src="+response[i].images.standard_resolution.url+" alt='Location: "+response[i].location.name+"'  />");
+            }
+            full = true;
+          });
+        }
+
+
+        google.maps.event.addDomListener(document.getElementById('nw'), 'click', function() {
+          lat = lat + step/2;
+          lng = lng - step/2;
+          redraw(lat, lng);
+        });
+
+        google.maps.event.addDomListener(document.getElementById('n'), 'click', function() {
+          lat = lat + step;
+          redraw(lat, lng);
+        });
+
+        google.maps.event.addDomListener(document.getElementById('ne'), 'click', function() {
+          lat = lat + step/2;
+          lng = lng + step/2;
+          redraw(lat, lng);
+        });
+
+        google.maps.event.addDomListener(document.getElementById('w'), 'click', function() {
+          lng = lng - step;
+          redraw(lat, lng);
+        });
+
+        google.maps.event.addDomListener(document.getElementById('e'), 'click', function() {
+          lng = lng + step;
+          redraw(lat, lng);
+        });
+
+        google.maps.event.addDomListener(document.getElementById('sw'), 'click', function() {
+          lat = lat - step/2;
+          lng = lng - step/2;
+          redraw(lat, lng);
+        });
+
+        google.maps.event.addDomListener(document.getElementById('s'), 'click', function() {
+          lat = lat - step;
+          redraw(lat, lng);
+        });
+
+        google.maps.event.addDomListener(document.getElementById('se'), 'click', function() {
+          lat = lat - step/2;
+          lng = lng + step/2;
+          redraw(lat, lng);
+        });
+
+        google.maps.event.addDomListener(document.getElementById('get'), 'click', function() {
+          getPics(lat, lng);
+        });
+      });
+
+      // Script stuff goes here!
+    </script>
+    <style>
+      /*Style stuff goes here!*/
+      body{
+        background-color: black;
+      }
+
+      #map {
+        height: 60%;
+        width:60%;
+        margin-left: 3%;
+        /*background-color: red;*/
+        float: left;
+        border: black solid 2px;
+      }
+
+      #directions{
+        height: 60%;
+        width: 30%;
+        margin-right: 3%;
+        float: right;
+        /*background-color: blue;*/
+      }
+
+      .vis{
+        width: 30%;
+        margin: auto;
+        clear: both;
+        color: white;
+      }
+
+      .hid{
+        visibility: hidden;
+      }
+
+
+      #pics{
+        width: 100%;
+        height: 35%;
+        position: fixed;
+        /*background-color: green;*/
+        bottom: 0;
+        left: 0;
+        overflow-x: scroll;
+        white-space: nowrap;
+      }
+
+      button{
+        height: 30%;
+        width: 30%;
+        margin: 1%; 
+        display: inline;
+      }
+
+
+      #get{
+        background-color: red;
+      }
+
+      img{
+        height: 90%;
+        width: 25%;
+        position: relative;
+
+        margin-left: 5px;
+        display: inline-block;
+        border: black solid 1px;
+      }
+
+      p{
+        width: 61%;
+        margin:auto;
+        margin-top: 7%;
+        color: white;
+      }
+
+    </style>
+  </head>
+  <body>
+      <!-- Body stuff goes here! -->
+      <div id="map"></div>
+      <div id="directions">
+          <button type="button" id="nw">Northwest</button>
+          <button type="button" id="n">North</button>
+          <button type="button" id="ne">Northeast</button>
+          <button type="button" id="w">West</button>
+          <button type="button" id="get">Get Snapshots!</button>
+          <button type="button" id="e">East</button>
+          <button type="button" id="sw">SouthWest</button>
+          <button type="button" id="s">South</button>
+          <button type="button" id="se">SouthEast</button>
+      </div>
+      <h2 class="hid">Scroll horizontally for more pictures!</h2>
+      <div id="pics">
+          <p>Move yourself around using the navigation buttons above! Then click the "Get Snapshots!" button for pictures taken in the area!</p>
+      </div>
+  </body>
+</html>
